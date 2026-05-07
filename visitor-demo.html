@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>访客邀约</title>
+  <style>
+    /* ===== Reset ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { cursor: pointer; border: none; outline: none; background: none; font-family: inherit; }
+    input, textarea { font-family: inherit; outline: none; }
+
+    /* ===== Layout ===== */
+    .mobile-box {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f5f5f5;
+      position: relative;
+      padding-bottom: 100px;
+    }
+    .scroll-container {
+      overflow-y: auto;
+    }
+
+    /* ===== Form Box ===== */
+    .form-box {
+      background: #fff;
+      margin-bottom: 8px;
+    }
+    .form-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      padding: 16px 16px 12px;
+      margin: 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* ===== Form Field (Vant-style) ===== */
+    .van-field {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      min-height: 50px;
+      border-bottom: 1px solid #f5f5f5;
+      position: relative;
+      background: #fff;
+    }
+    .van-field:last-child { border-bottom: none; }
+    .van-field__label {
+      flex: none;
+      width: 110px;
+      font-size: 14px;
+      color: #333;
+      line-height: 24px;
+    }
+    .van-field__label.required::before {
+      content: "*";
+      color: #ee0a24;
+      margin-right: 2px;
+    }
+    .van-field__control {
+      flex: 1;
+      min-height: 24px;
+      font-size: 14px;
+      color: #333;
+      text-align: right;
+    }
+    .van-field__control input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: #333;
+      text-align: right;
+      padding: 0;
+      line-height: 24px;
+    }
+    .van-field__control input::placeholder { color: #c8c9cc; }
+    .van-field__control textarea {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: #333;
+      text-align: right;
+      padding: 0;
+      resize: none;
+      line-height: 1.5;
+    }
+    .van-field__control textarea::placeholder { color: #c8c9cc; }
+    .van-field__value {
+      flex: 1;
+      text-align: right;
+      font-size: 14px;
+      color: #333;
+    }
+    .van-field__placeholder {
+      color: #c8c9cc;
+      font-size: 14px;
+    }
+    .van-field__arrow {
+      color: #969799;
+      margin-left: 4px;
+      font-size: 12px;
+    }
+    .van-field__error {
+      position: absolute;
+      bottom: 2px;
+      right: 16px;
+      font-size: 11px;
+      color: #ee0a24;
+      display: none;
+    }
+    .van-field.error .van-field__error { display: block; }
+    .van-field.error { padding-bottom: 18px; }
+
+    /* Tag chips */
+    .tag-chip {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: #e8f4fd;
+      color: #0070c9;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* Visitor count cell */
+    .van-cell {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      min-height: 50px;
+      background: #fff;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .van-cell__title {
+      font-size: 14px;
+      color: #333;
+      flex: none;
+    }
+    .van-cell__required::before {
+      content: "*";
+      color: #ee0a24;
+      margin-right: 2px;
+    }
+    .van-cell__value {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    /* ===== Stepper ===== */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .stepper__btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #e4e4e4;
+      background: #f2f3f5;
+      font-size: 16px;
+      color: #333;
+      border-radius: 2px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .stepper__btn:active { background: #ddd; }
+    .stepper__input {
+      width: 60px;
+      height: 28px;
+      text-align: center;
+      border: none;
+      border-top: 1px solid #e4e4e4;
+      border-bottom: 1px solid #e4e4e4;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+    }
+
+    /* ===== Visitor Lists ===== */
+    .visitor-lists {
+      background: #fff;
+      margin-bottom: 8px;
+    }
+    .visitor-head {
+      padding: 12px 16px 0;
+    }
+    .visitor-head-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .visitor-head-left-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .visitor-head-left {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    .toggle-icon {
+      font-size: 12px;
+      color: #666;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+    .toggle-icon.expanded { transform: rotate(180deg); }
+    .add-visitor-btn {
+      padding: 5px 12px;
+      border: 1px solid #00665f;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #00665f;
+      background: #fff;
+    }
+    .add-visitor-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .add-visitor-btn:not(:disabled):active { background: #f0f9f9; }
+    .visitor-head-tips {
+      font-size: 12px;
+      color: rgba(20,21,21,0.56);
+      margin: 6px 0 12px;
+      line-height: 1.5;
+    }
+    .visitor-items {
+      padding: 0 16px 12px;
+    }
+    .visitor-item {
+      border: 1px solid #e4e4e4;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .visitor-item__row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .visitor-item__row:last-child { margin-bottom: 0; }
+    .visitor-item__label {
+      font-size: 13px;
+      color: #666;
+      width: 60px;
+      flex: none;
+    }
+    .visitor-item__input {
+      flex: 1;
+      border: none;
+      border-bottom: 1px solid #e4e4e4;
+      padding: 4px 0;
+      font-size: 13px;
+      color: #333;
+      background: transparent;
+    }
+    .visitor-item__input::placeholder { color: #c8c9cc; }
+    .visitor-item__delete {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: #ee0a24;
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid #ee0a24;
+      border-radius: 4px;
+    }
+    .visitor-empty {
+      padding: 20px 16px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
+
+    /* ===== Notice ===== */
+    .appoint-notice {
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .notice-box {
+      padding: 16px;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .notice-header {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .notice-header h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    .notice-content {
+      margin-top: 12px;
+    }
+    .notice-text {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(20,21,21,0.56);
+    }
+    .notice-text:last-child { margin-bottom: 0; }
+    .notice-text .circle {
+      flex-shrink: 0;
+      width: 4px;
+      height: 4px;
+      margin-top: 7px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: rgba(20,21,21,0.56);
+    }
+    .notice-text .con { flex: 1; }
+
+    /* ===== Bottom Buttons ===== */
+    .btn-group {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #fff;
+      border-top: 1px solid #f0f0f0;
+      z-index: 100;
+    }
+    .btn {
+      flex: 1;
+      height: 44px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .cancel-btn {
+      border: 1px solid #ddd;
+      color: #666;
+      background: #fff;
+    }
+    .cancel-btn:active { background: #f5f5f5; }
+    .submit-btn {
+      color: #fff;
+      font-weight: bold;
+      background: #00665f;
+    }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .submit-btn:not(:disabled):active { background: #004d47; }
+
+    /* ===== Bottom Overlay ===== */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+    }
+    .overlay.show { display: block; }
+    .bottom-sheet {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 16px 16px 0 0;
+      z-index: 201;
+      max-height: 80vh;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .bottom-sheet.show { display: flex; }
+
+    /* ===== Area Selector ===== */
+    .selector-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .selector-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .header-actions { display: flex; gap: 12px; }
+    .header-actions .cancel-btn {
+      font-size: 14px;
+      color: #666;
+      padding: 4px 8px;
+      border: none;
+    }
+    .header-actions .confirm-btn {
+      font-size: 14px;
+      color: #00665f;
+      font-weight: 600;
+      padding: 4px 8px;
+      border: none;
+      background: none;
+    }
+    .area-list {
+      padding: 12px 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .area-group-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      padding: 8px 0 6px;
+    }
+    .area-checkbox-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+      cursor: pointer;
+    }
+    .area-checkbox-item:last-child { border-bottom: none; }
+    .area-checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
+      accent-color: #00665f;
+      cursor: pointer;
+    }
+    .area-checkbox-item label {
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      flex: 1;
+    }
+    .area-secret-tag {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      color: #ee0a24;
+      background: #fef0f0;
+      margin-left: 8px;
+    }
+
+    /* ===== Picker (Vant-style) ===== */
+    .picker-title {
+      text-align: center;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border-bottom: 1px solid #f0f0f0;
+      position: relative;
+    }
+    .picker-cancel {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #969799;
+    }
+    .picker-confirm {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #00665f;
+      font-weight: 600;
+    }
+    .picker-list {
+      overflow-y: auto;
+      flex: 1;
+    }
+    .picker-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f5f5f5;
+      cursor: pointer;
+    }
+    .picker-item:last-child { border-bottom: none; }
+    .picker-item__label {
+      font-size: 15px;
+      color: #333;
+      margin-bottom: 3px;
+    }
+    .picker-item__remark {
+      font-size: 12px;
+      color: #999;
+    }
+    .picker-item.selected .picker-item__label { color: #00665f; font-weight: 600; }
+    .picker-item:active { background: #f5f5f5; }
+
+    /* ===== Time Selector ===== */
+    .time-selector {
+      padding: 0 16px 16px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .time-inputs { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+    .time-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .time-row label {
+      font-size: 14px;
+      color: #666;
+      width: 70px;
+      flex: none;
+    }
+    .time-row input[type="date"],
+    .time-row input[type="time"] {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    /* ===== Loading ===== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .loading-spinner {
+      padding: 16px 24px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      max-width: 240px;
+      text-align: center;
+    }
+    .toast.hidden { opacity: 0; }
+
+    .bottom-spacer { height: 80px; }
+
+    /* ===== 施工人员卡片 ===== */
+    .worker-card {
+      border: 1px solid #e4e4e4;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fff;
+      position: relative;
+    }
+    .worker-card.is-primary {
+      border-color: #00665f;
+      background: #f5faf9;
+    }
+    .worker-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .worker-card__name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #222;
+    }
+    .worker-card__phone {
+      font-size: 13px;
+      color: #888;
+      margin-left: 8px;
+    }
+    .worker-card__primary-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: #00665f;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .worker-card__tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .worker-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: #f0f0f0;
+      color: #666;
+    }
+    .worker-tag.project { background: #e8f4fd; color: #0070c9; }
+    .worker-tag.supplier { background: #f0faf8; color: #00665f; }
+    .worker-card__actions {
+      display: flex;
+      gap: 8px;
+    }
+    .worker-card__set-primary {
+      flex: 1;
+      height: 32px;
+      border: 1px solid #00665f;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #00665f;
+      background: #fff;
+    }
+    .worker-card__set-primary:active { background: #f0faf8; }
+    .worker-card__delete {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid #ee0a24;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #ee0a24;
+      background: #fff;
+    }
+    .worker-card__delete:active { background: #fef0f0; }
+    /* 步骤指示 */
+    .sheet-step-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin-left: 8px;
+      font-weight: normal;
+    }
+    /* 人员勾选 item */
+    .personnel-check-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .personnel-check-item:last-child { border-bottom: none; }
+    .personnel-check-item input[type="checkbox"] {
+      width: 20px; height: 20px; accent-color: #00665f; flex-shrink: 0; cursor: pointer;
+    }
+    .personnel-check-item input:disabled { opacity: 0.35; cursor: not-allowed; }
+    .personnel-info { flex: 1; }
+    .personnel-name { font-size: 14px; font-weight: 500; color: #333; }
+    .personnel-phone { font-size: 12px; color: #999; margin-top: 2px; }
+    .personnel-added-tag {
+      font-size: 11px; color: #00665f; background: #e8f5f3;
+      padding: 2px 6px; border-radius: 4px; flex-shrink: 0;
+    }
+    /* 手动填写表单 */
+    .manual-form { padding: 16px; }
+    .manual-form-item { margin-bottom: 16px; }
+    .manual-form-item label {
+      display: block; font-size: 13px; color: #666; margin-bottom: 6px;
+    }
+    .manual-form-item input {
+      width: 100%; height: 40px; border: 1px solid #ddd; border-radius: 8px;
+      padding: 0 12px; font-size: 14px; color: #333;
+    }
+    .manual-form-item input:focus { border-color: #00665f; }
+    .manual-form-item input::placeholder { color: #c8c9cc; }
+    .manual-project-btn, .manual-supplier-btn {
+      width: 100%; height: 40px; border: 1px solid #ddd; border-radius: 8px;
+      padding: 0 12px; font-size: 14px; color: #333; background: #fff;
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    }
+    .manual-project-btn .placeholder, .manual-supplier-btn .placeholder { color: #c8c9cc; }
+    .manual-project-btn:active, .manual-supplier-btn:active { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+<div class="mobile-box">
+  <div class="scroll-container">
+
+    <!-- 访客基本信息 -->
+    <div class="form-box">
+      <h2 class="form-title">访客基本信息</h2>
+      <form id="mainForm" novalidate>
+
+        <!-- 主访客姓名 -->
+        <div class="van-field" id="field-name">
+          <div class="van-field__label required">主访客姓名</div>
+          <div class="van-field__control">
+            <input type="text" id="visitorName" maxlength="20" placeholder="请输入主访客姓名" />
+          </div>
+          <div class="van-field__error">请输入主访客姓名</div>
+        </div>
+
+        <!-- 主访客电话 -->
+        <div class="van-field" id="field-phone">
+          <div class="van-field__label required">主访客电话</div>
+          <div class="van-field__control">
+            <input type="tel" id="visitorPhone" maxlength="11" placeholder="请输入主访客联系电话" />
+          </div>
+          <div class="van-field__error" id="phone-error">请输入主访客电话</div>
+        </div>
+
+        <!-- 到访工区 -->
+        <div class="van-field" id="field-area" style="cursor:pointer;" onclick="openAreaSheet()">
+          <div class="van-field__label required">到访工区</div>
+          <div class="van-field__value" id="areaDisplay">
+            <span class="van-field__placeholder">请选择到访工区（支持多选）</span>
+          </div>
+          <div class="van-field__arrow">›</div>
+          <div class="van-field__error">请选择到访工区</div>
+        </div>
+
+        <!-- 到访事由 -->
+        <div class="van-field" id="field-reason" style="cursor:pointer;" onclick="openReasonSheet()">
+          <div class="van-field__label required">到访事由</div>
+          <div class="van-field__value" id="reasonDisplay">
+            <span class="van-field__placeholder">请选择到访事由</span>
+          </div>
+          <div class="van-field__arrow">›</div>
+          <div class="van-field__error">请选择到访事由</div>
+        </div>
+
+        <!-- 访客主体 -->
+        <div class="van-field" id="field-type" style="cursor:pointer;" onclick="openTypeSheet()">
+          <div class="van-field__label required">访客主体</div>
+          <div class="van-field__value" id="typeDisplay">
+            <span class="van-field__placeholder">请选择访客主体</span>
+          </div>
+          <div class="van-field__arrow">›</div>
+          <div class="van-field__error">请选择访客主体</div>
+        </div>
+
+        <!-- 预计访问时间 -->
+        <div class="van-field" id="field-time" style="cursor:pointer; align-items:flex-start; padding-top:12px;" onclick="openTimeSheet()">
+          <div class="van-field__label required" style="padding-top:4px;">预计访问时间</div>
+          <div class="van-field__value" id="timeDisplay" style="min-height:24px; line-height:1.5;">
+            <span class="van-field__placeholder">请选择到访时间和离开时间</span>
+          </div>
+          <div class="van-field__arrow" style="padding-top:4px;">›</div>
+          <div class="van-field__error">请选择预计访问时间</div>
+        </div>
+
+        <!-- 访客数量 -->
+        <div class="van-cell">
+          <div class="van-cell__title van-cell__required">访客数量</div>
+          <div class="van-cell__value">
+            <div class="stepper">
+              <button type="button" class="stepper__btn" onclick="changeCount(-1)">−</button>
+              <input type="number" class="stepper__input" id="visitorCount" value="1" min="1" max="200" readonly />
+              <button type="button" class="stepper__btn" onclick="changeCount(1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 访客接待说明 -->
+        <div class="van-field" style="align-items:flex-start; padding-top:12px;">
+          <div class="van-field__label" style="padding-top:4px;">访客接待说明</div>
+          <div class="van-field__control" style="padding-top:4px;">
+            <textarea id="visitorDesc" rows="2" maxlength="200"
+              placeholder="请提供访客单位名称、来访具体原因等信息"
+              style="min-height:48px;"></textarea>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- 施工人员（施工改造模式） -->
+    <div class="visitor-lists" id="constructionSection" style="display:none;">
+      <div class="visitor-head">
+        <div class="visitor-head-main">
+          <div class="visitor-head-left-wrapper" onclick="toggleConstruction()">
+            <span class="visitor-head-left">施工人员</span>
+            <span style="font-size:11px;color:#ee0a24;margin-left:4px;">*</span>
+            <span class="toggle-icon expanded" id="constructionToggleIcon">▼</span>
+          </div>
+          <button class="add-visitor-btn" onclick="startAddWorker()">＋ 添加</button>
+        </div>
+        <p class="visitor-head-tips">请按「项目 → 供应商 → 人员」逐步添加施工人员，并标记其中一人为主访客。</p>
+      </div>
+      <div id="constructionContent">
+        <div class="visitor-items" id="workerList"></div>
+        <div class="visitor-empty" id="workerEmpty"><p>请点击「添加」按钮添加施工人员</p></div>
+        <div id="worker-error" style="font-size:12px;color:#ee0a24;text-align:center;padding:0 16px 12px;display:none;">请至少添加一名施工人员</div>
+      </div>
+    </div>
+
+    <!-- 随行人员 -->
+    <div class="visitor-lists" id="companionsSection" style="display:none;">
+      <div class="visitor-head">
+        <div class="visitor-head-main">
+          <div class="visitor-head-left-wrapper" onclick="toggleCompanions()">
+            <span class="visitor-head-left">随行人员</span>
+            <span class="toggle-icon expanded" id="companionsToggleIcon">▼</span>
+          </div>
+          <button class="add-visitor-btn" id="addCompanionBtn" onclick="addCompanion()">＋ 添加访客</button>
+        </div>
+        <p class="visitor-head-tips">邀请多名访客时，您可在此处自行添加访客信息，也可由访客人员通过短信链接自行添加。</p>
+      </div>
+      <div id="companionsContent">
+        <div class="visitor-items" id="companionsList"></div>
+        <div class="visitor-empty" id="companionsEmpty">
+          <p>暂无访客信息</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 访客预约须知 -->
+    <div class="appoint-notice">
+      <div class="notice-box">
+        <div class="notice-header" onclick="toggleNotice()">
+          <h3>访客预约须知</h3>
+          <span class="toggle-icon expanded" id="noticeToggleIcon">▼</span>
+        </div>
+        <div class="notice-content" id="noticeContent">
+          <div class="notice-text">
+            <div class="circle"></div>
+            <div class="con">受访员工务必要求访客遵守公司保密制度，未经允许严禁拍照。</div>
+          </div>
+          <div class="notice-text">
+            <div class="circle"></div>
+            <div class="con">访客现场签到后由受访员工接入工区，受访员工须全程陪同。</div>
+          </div>
+          <div class="notice-text">
+            <div class="circle"></div>
+            <div class="con">访客如需领取瓶装水，请到前台或门岗出示访客贴。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- 底部按钮 -->
+  <div class="btn-group">
+    <button class="btn cancel-btn" onclick="handleCancel()">取消</button>
+    <button class="btn submit-btn" id="submitBtn" onclick="handleSubmit()">提交审核</button>
+  </div>
+</div>
+
+<!-- ===== 遮罩层 ===== -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+
+<!-- ===== 工区选择器 ===== -->
+<div class="bottom-sheet" id="areaSheet">
+  <div class="selector-header">
+    <h3>选择工区（多选）</h3>
+    <div class="header-actions">
+      <button class="cancel-btn" onclick="closeAll()">取消</button>
+      <button class="confirm-btn" onclick="confirmArea()">确定</button>
+    </div>
+  </div>
+  <div class="area-list">
+    <div class="area-group-label">理想汽车总部</div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area1" value="area1" name="area" />
+      <label for="area1">主楼</label>
+    </div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area2" value="area2" name="area" />
+      <label for="area2">创新中心</label>
+    </div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area3" value="area3" name="area" />
+      <label for="area3">数据中心 <span class="area-secret-tag">保密</span></label>
+    </div>
+    <div class="area-group-label">研发基地</div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area4" value="area4" name="area" />
+      <label for="area4">研发基地A区</label>
+    </div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area5" value="area5" name="area" />
+      <label for="area5">研发基地B区</label>
+    </div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area6" value="area6" name="area" />
+      <label for="area6">研发基地C区 <span class="area-secret-tag">保密</span></label>
+    </div>
+    <div class="area-group-label">生产工厂</div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area7" value="area7" name="area" />
+      <label for="area7">常州工厂</label>
+    </div>
+    <div class="area-checkbox-item">
+      <input type="checkbox" id="area8" value="area8" name="area" />
+      <label for="area8">顺义工厂</label>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 到访事由选择器 ===== -->
+<div class="bottom-sheet" id="reasonSheet">
+  <div class="picker-title">
+    到访事由
+    <button class="picker-cancel" onclick="closeAll()">取消</button>
+    <button class="picker-confirm" onclick="closeAll()">确定</button>
+  </div>
+  <div class="picker-list" id="reasonList">
+    <div class="picker-item" onclick="selectReason(this, '商务合作', '与公司开展商业合作、洽谈业务')">
+      <div class="picker-item__label">商务合作</div>
+      <div class="picker-item__remark">与公司开展商业合作、洽谈业务</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '技术交流', '技术讨论、方案评审、技术培训')">
+      <div class="picker-item__label">技术交流</div>
+      <div class="picker-item__remark">技术讨论、方案评审、技术培训</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '政府来访', '政府机关、监管部门的官方拜访')">
+      <div class="picker-item__label">政府来访</div>
+      <div class="picker-item__remark">政府机关、监管部门的官方拜访</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '面试', '求职应聘相关面试')">
+      <div class="picker-item__label">面试</div>
+      <div class="picker-item__remark">求职应聘相关面试</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '审计检查', '内外部审计及合规检查')">
+      <div class="picker-item__label">审计检查</div>
+      <div class="picker-item__remark">内外部审计及合规检查</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '参观调研', '参观公司、调研考察')">
+      <div class="picker-item__label">参观调研</div>
+      <div class="picker-item__remark">参观公司、调研考察</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '施工改造', '现场施工、装修改造等工程服务')">
+      <div class="picker-item__label">施工改造</div>
+      <div class="picker-item__remark">现场施工、装修改造等工程服务</div>
+    </div>
+    <div class="picker-item" onclick="selectReason(this, '其他', '以上未包含的其他来访事项')">
+      <div class="picker-item__label">其他</div>
+      <div class="picker-item__remark">以上未包含的其他来访事项</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 访客主体选择器 ===== -->
+<div class="bottom-sheet" id="typeSheet">
+  <div class="picker-title">
+    访客主体
+    <button class="picker-cancel" onclick="closeAll()">取消</button>
+    <button class="picker-confirm" onclick="closeAll()">确定</button>
+  </div>
+  <div class="picker-list" id="typeList">
+    <div class="picker-item" onclick="selectType(this, '供应商', '向公司提供产品或服务的供应商')">
+      <div class="picker-item__label">供应商</div>
+      <div class="picker-item__remark">向公司提供产品或服务的供应商</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '合作伙伴', '战略合作伙伴或合作企业')">
+      <div class="picker-item__label">合作伙伴</div>
+      <div class="picker-item__remark">战略合作伙伴或合作企业</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '政府机关人员', '政府工作人员或监管机构人员')">
+      <div class="picker-item__label">政府机关人员</div>
+      <div class="picker-item__remark">政府工作人员或监管机构人员</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '媒体记者', '新闻媒体、自媒体相关人员')">
+      <div class="picker-item__label">媒体记者</div>
+      <div class="picker-item__remark">新闻媒体、自媒体相关人员</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '求职者', '应聘公司职位的候选人')">
+      <div class="picker-item__label">求职者</div>
+      <div class="picker-item__remark">应聘公司职位的候选人</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '顾客/用户', '公司产品的用户或潜在客户')">
+      <div class="picker-item__label">顾客/用户</div>
+      <div class="picker-item__remark">公司产品的用户或潜在客户</div>
+    </div>
+    <div class="picker-item" onclick="selectType(this, '其他', '以上未列举的其他访客类型')">
+      <div class="picker-item__label">其他</div>
+      <div class="picker-item__remark">以上未列举的其他访客类型</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 时间选择器 ===== -->
+<div class="bottom-sheet" id="timeSheet">
+  <div class="selector-header">
+    <h3>选择预约时间</h3>
+    <div class="header-actions">
+      <button class="cancel-btn" onclick="closeAll()">取消</button>
+      <button class="confirm-btn" onclick="confirmTime()">确定</button>
+    </div>
+  </div>
+  <div class="time-selector">
+    <div class="time-inputs">
+      <div class="time-row">
+        <label>开始日期:</label>
+        <input type="date" id="startDate" />
+      </div>
+      <div class="time-row">
+        <label>开始时间:</label>
+        <input type="time" id="startTime" value="09:00" />
+      </div>
+      <div class="time-row">
+        <label>结束日期:</label>
+        <input type="date" id="endDate" />
+      </div>
+      <div class="time-row">
+        <label>结束时间:</label>
+        <input type="time" id="endTime" value="18:00" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Loading ===== -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ===== 施工改造：步骤1 选择项目 ===== -->
+<div class="bottom-sheet" id="projectSheet">
+  <div class="picker-title">
+    选择项目 <span class="sheet-step-hint">1 / 3</span>
+    <button class="picker-cancel" onclick="closeAll()">取消</button>
+  </div>
+  <div class="picker-list" id="projectList"></div>
+  <div style="padding:12px 16px;border-top:1px solid #f0f0f0;">
+    <button style="width:100%;height:40px;border:1px dashed #ccc;border-radius:8px;font-size:14px;color:#888;background:#fafafa;"
+      onclick="openManualSheet()">✏️ 手动填写人员信息</button>
+  </div>
+</div>
+
+<!-- ===== 施工改造：步骤2 选择供应商 ===== -->
+<div class="bottom-sheet" id="supplierSheet">
+  <div class="picker-title">
+    选择供应商 <span class="sheet-step-hint">2 / 3</span>
+    <button class="picker-cancel" onclick="closeAll()">取消</button>
+  </div>
+  <div class="picker-list" id="supplierList"></div>
+</div>
+
+<!-- ===== 施工改造：步骤3 选择人员 ===== -->
+<div class="bottom-sheet" id="personnelSheet">
+  <div class="selector-header">
+    <h3 id="personnelSheetTitle">选择人员 <span class="sheet-step-hint">3 / 3</span></h3>
+    <div class="header-actions">
+      <button class="cancel-btn" onclick="closeAll()">取消</button>
+      <button class="confirm-btn" onclick="confirmPersonnel()">确定</button>
+    </div>
+  </div>
+  <div class="area-list" id="personnelList"></div>
+</div>
+
+<!-- ===== 施工改造：手动填写 ===== -->
+<div class="bottom-sheet" id="manualWorkerSheet">
+  <div class="selector-header">
+    <h3>手动填写人员</h3>
+    <div class="header-actions">
+      <button class="cancel-btn" onclick="closeAll()">取消</button>
+      <button class="confirm-btn" onclick="confirmManualWorker()">确定</button>
+    </div>
+  </div>
+  <div class="manual-form">
+    <div class="manual-form-item">
+      <label>姓名 <span style="color:#ee0a24;">*</span></label>
+      <input type="text" id="manualName" placeholder="请输入姓名" maxlength="20" />
+    </div>
+    <div class="manual-form-item">
+      <label>手机号 <span style="color:#ee0a24;">*</span></label>
+      <input type="tel" id="manualPhone" placeholder="请输入手机号" maxlength="11" />
+    </div>
+    <div class="manual-form-item">
+      <label>所属项目 <span style="color:#ee0a24;">*</span></label>
+      <button class="manual-project-btn" id="manualProjectBtn" onclick="openManualProjectPicker()">
+        <span id="manualProjectLabel" class="placeholder">请选择项目</span>
+        <span style="color:#ccc;">›</span>
+      </button>
+    </div>
+    <div class="manual-form-item">
+      <label>所属供应商 <span style="color:#ee0a24;">*</span></label>
+      <button class="manual-supplier-btn" id="manualSupplierBtn" onclick="openManualSupplierPicker()" disabled>
+        <span id="manualSupplierLabel" class="placeholder">请先选择项目</span>
+        <span style="color:#ccc;">›</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 手动填写-项目选择 ===== -->
+<div class="bottom-sheet" id="manualProjectSheet">
+  <div class="picker-title">
+    选择项目
+    <button class="picker-cancel" onclick="showSheet('manualWorkerSheet')">返回</button>
+  </div>
+  <div class="picker-list" id="manualProjectList"></div>
+</div>
+
+<!-- ===== 手动填写-供应商选择 ===== -->
+<div class="bottom-sheet" id="manualSupplierSheet">
+  <div class="picker-title">
+    选择供应商
+    <button class="picker-cancel" onclick="showSheet('manualWorkerSheet')">返回</button>
+  </div>
+  <div class="picker-list" id="manualSupplierList"></div>
+</div>
+
+<!-- ===== Loading ===== -->
+
+  <div class="loading-spinner">提交中...</div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast hidden" id="toast"></div>
+
+<script>
+  // ===== Mock 数据 =====
+  const MOCK_PROJECTS = [
+    { id: 'p1', name: 'XX大厦改造项目' },
+    { id: 'p2', name: '研发楼装修项目' },
+    { id: 'p3', name: '厂房扩建项目' },
+  ];
+  const MOCK_SUPPLIERS = {
+    p1: [{ id: 's1', name: '北京建工集团' }, { id: 's2', name: '华建装饰公司' }],
+    p2: [{ id: 's3', name: '绿城建设' }, { id: 's1', name: '北京建工集团' }],
+    p3: [{ id: 's4', name: '中建八局' }, { id: 's5', name: '顺义建材有限公司' }],
+  };
+  const MOCK_PERSONNEL = {
+    s1: [{ id: 'u1', name: '张三', phone: '13800001111' }, { id: 'u2', name: '王五', phone: '13800003333' }],
+    s2: [{ id: 'u3', name: '李四', phone: '13900002222' }, { id: 'u4', name: '陈八', phone: '13900004444' }],
+    s3: [{ id: 'u5', name: '赵六', phone: '15600004444' }, { id: 'u6', name: '孙七', phone: '15700005555' }],
+    s4: [{ id: 'u7', name: '周八', phone: '18800006666' }],
+    s5: [{ id: 'u8', name: '吴九', phone: '18900007777' }, { id: 'u9', name: '郑十', phone: '17700008888' }],
+  };
+
+  // ===== State =====
+  const state = {
+    selectedAreas: [],
+    selectedReason: '',
+    selectedType: '',
+    visitTimeRange: '',
+    visitorCount: 1,
+    companionCount: 0,
+    noticeExpanded: true,
+    companionsExpanded: true,
+    constructionExpanded: true,
+    isConstruction: false,
+    workers: [],          // [{uid, name, phone, projectId, projectName, supplierId, supplierName, isPrimary}]
+    workerIdCounter: 0,
+    // 添加流程临时状态
+    addFlow: { projectId: '', projectName: '', supplierId: '', supplierName: '' },
+    // 手动填写临时状态
+    manualFlow: { projectId: '', projectName: '', supplierId: '', supplierName: '' },
+  };
+
+  // ===== Toast =====
+  let toastTimer;
+  function showToast(msg, duration = 2000) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add('hidden'), duration);
+  }
+
+  // ===== Init dates =====
+  (function initDates() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').value = today;
+    document.getElementById('startDate').min = today;
+    document.getElementById('endDate').value = today;
+    document.getElementById('endDate').min = today;
+  })();
+
+  // ===== Sheets =====
+  function showSheet(id) {
+    // 先隐藏所有sheet，只显示目标
+    ['areaSheet','reasonSheet','typeSheet','timeSheet',
+     'projectSheet','supplierSheet','personnelSheet',
+     'manualWorkerSheet','manualProjectSheet','manualSupplierSheet'].forEach(s => {
+      document.getElementById(s).classList.remove('show');
+    });
+    document.getElementById('overlay').classList.add('show');
+    document.getElementById(id).classList.add('show');
+  }
+  function closeAll() {
+    document.getElementById('overlay').classList.remove('show');
+    ['areaSheet','reasonSheet','typeSheet','timeSheet',
+     'projectSheet','supplierSheet','personnelSheet',
+     'manualWorkerSheet','manualProjectSheet','manualSupplierSheet'].forEach(id => {
+      document.getElementById(id).classList.remove('show');
+    });
+  }
+  function openAreaSheet() { showSheet('areaSheet'); }
+  function openReasonSheet() { showSheet('reasonSheet'); }
+  function openTypeSheet() { showSheet('typeSheet'); }
+  function openTimeSheet() { showSheet('timeSheet'); }
+
+  // ===== 到访事由选择 =====
+  function selectReason(el, label, remark) {
+    document.querySelectorAll('#reasonList .picker-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    state.selectedReason = label;
+    const display = document.getElementById('reasonDisplay');
+    display.innerHTML = `<span>${label}</span>`;
+    clearFieldError('field-reason');
+    setTimeout(() => {
+      closeAll();
+      onReasonChange(label);
+    }, 180);
+  }
+
+  function onReasonChange(label) {
+    state.isConstruction = (label === '施工改造');
+    // 隐藏/显示普通字段
+    document.getElementById('field-name').style.display = state.isConstruction ? 'none' : '';
+    document.getElementById('field-phone').style.display = state.isConstruction ? 'none' : '';
+    document.querySelector('.van-cell').style.display = state.isConstruction ? 'none' : '';  // 访客数量
+    // 切换人员区块
+    document.getElementById('companionsSection').style.display = 'none';
+    document.getElementById('constructionSection').style.display = state.isConstruction ? 'block' : 'none';
+    if (!state.isConstruction && state.visitorCount > 1) {
+      document.getElementById('companionsSection').style.display = 'block';
+    }
+    document.getElementById('worker-error').style.display = 'none';
+  }
+
+  // ===== 工区 =====
+  function confirmArea() {
+    const checkboxes = document.querySelectorAll('#areaSheet input[name="area"]:checked');
+    if (checkboxes.length === 0) { showToast('请至少选择一个工区'); return; }
+    state.selectedAreas = Array.from(checkboxes).map(cb => ({
+      id: cb.value, label: cb.nextElementSibling.textContent.trim()
+    }));
+    updateAreaDisplay();
+    clearFieldError('field-area');
+    closeAll();
+  }
+  function updateAreaDisplay() {
+    const d = document.getElementById('areaDisplay');
+    if (!state.selectedAreas.length) {
+      d.innerHTML = '<span class="van-field__placeholder">请选择到访工区（支持多选）</span>';
+    } else {
+      let html = `<span class="tag-chip">${state.selectedAreas[0].label}</span>`;
+      if (state.selectedAreas.length > 1) html += `<span class="tag-chip">+${state.selectedAreas.length-1}</span>`;
+      d.innerHTML = html;
+    }
+  }
+
+  // ===== 访客主体 =====
+  function selectType(el, label) {
+    document.querySelectorAll('#typeList .picker-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    state.selectedType = label;
+    document.getElementById('typeDisplay').innerHTML = `<span>${label}</span>`;
+    clearFieldError('field-type');
+    setTimeout(closeAll, 180);
+  }
+
+  // ===== 时间 =====
+  function confirmTime() {
+    const sd = document.getElementById('startDate').value;
+    const st = document.getElementById('startTime').value;
+    const ed = document.getElementById('endDate').value;
+    const et = document.getElementById('endTime').value;
+    if (!sd || !st || !ed || !et) { showToast('请完整填写时间'); return; }
+    const s = new Date(`${sd}T${st}`), e = new Date(`${ed}T${et}`);
+    if (s >= e) { showToast('开始时间不能大于结束时间'); return; }
+    if ((e - s) > 7*24*60*60*1000) { showToast('访问时间不能超过7天'); return; }
+    state.visitTimeRange = `${sd} ${st} ~ ${ed} ${et}`;
+    document.getElementById('timeDisplay').innerHTML = `<span>${state.visitTimeRange}</span>`;
+    clearFieldError('field-time');
+    closeAll();
+  }
+
+  // ===== 访客数量（普通模式）=====
+  function changeCount(delta) {
+    const input = document.getElementById('visitorCount');
+    let val = parseInt(input.value) + delta;
+    if (val < 1) val = 1; if (val > 200) val = 200;
+    input.value = val; state.visitorCount = val;
+    if (!state.isConstruction) {
+      document.getElementById('companionsSection').style.display = val > 1 ? 'block' : 'none';
+    }
+    updateAddCompanionBtn();
+  }
+  function updateAddCompanionBtn() {
+    const btn = document.getElementById('addCompanionBtn');
+    btn.disabled = state.companionCount >= state.visitorCount - 1;
+  }
+
+  // ===== 随行人员（普通模式）=====
+  let companionIdCounter = 0;
+  function addCompanion() {
+    if (state.companionCount >= state.visitorCount - 1) {
+      showToast(`已达到访客数量上限（${state.visitorCount}人）`); return;
+    }
+    companionIdCounter++;
+    const id = companionIdCounter;
+    state.companionCount++;
+    renderCompanions();
+    updateAddCompanionBtn();
+  }
+  function deleteCompanion(id) {
+    document.getElementById(`companion-${id}`)?.remove();
+    state.companionCount--;
+    updateCompanionsEmpty();
+    updateAddCompanionBtn();
+  }
+  function updateCompanionsEmpty() {
+    const list = document.getElementById('companionsList');
+    document.getElementById('companionsEmpty').style.display = list.children.length === 0 ? 'block' : 'none';
+  }
+  function renderCompanions() {
+    const id = companionIdCounter;
+    document.getElementById('companionsEmpty').style.display = 'none';
+    const item = document.createElement('div');
+    item.className = 'visitor-item'; item.id = `companion-${id}`;
+    item.innerHTML = `
+      <button class="visitor-item__delete" type="button" onclick="deleteCompanion(${id})">删除</button>
+      <div class="visitor-item__row">
+        <span class="visitor-item__label">姓名</span>
+        <input class="visitor-item__input" type="text" placeholder="请输入姓名" maxlength="20" />
+      </div>
+      <div class="visitor-item__row">
+        <span class="visitor-item__label">手机号</span>
+        <input class="visitor-item__input" type="tel" placeholder="请输入手机号" maxlength="11" />
+      </div>`;
+    document.getElementById('companionsList').appendChild(item);
+  }
+  function toggleCompanions() {
+    state.companionsExpanded = !state.companionsExpanded;
+    document.getElementById('companionsContent').style.display = state.companionsExpanded ? 'block' : 'none';
+    document.getElementById('companionsToggleIcon').classList.toggle('expanded', state.companionsExpanded);
+  }
+
+  // ===== 施工人员 - 折叠 =====
+  function toggleConstruction() {
+    state.constructionExpanded = !state.constructionExpanded;
+    document.getElementById('constructionContent').style.display = state.constructionExpanded ? 'block' : 'none';
+    document.getElementById('constructionToggleIcon').classList.toggle('expanded', state.constructionExpanded);
+  }
+
+  // ===== 施工人员 - 添加流程（三步）=====
+  function startAddWorker() {
+    // 重置流程状态
+    state.addFlow = { projectId: '', projectName: '', supplierId: '', supplierName: '' };
+    // 渲染项目列表
+    const list = document.getElementById('projectList');
+    list.innerHTML = MOCK_PROJECTS.map(p => `
+      <div class="picker-item" onclick="selectAddProject('${p.id}', '${p.name}')">
+        <div class="picker-item__label">${p.name}</div>
+      </div>`).join('');
+    showSheet('projectSheet');
+  }
+
+  function selectAddProject(id, name) {
+    state.addFlow.projectId = id;
+    state.addFlow.projectName = name;
+    // 渲染供应商列表
+    const suppliers = MOCK_SUPPLIERS[id] || [];
+    document.getElementById('supplierList').innerHTML = suppliers.map(s => `
+      <div class="picker-item" onclick="selectAddSupplier('${s.id}', '${s.name}')">
+        <div class="picker-item__label">${s.name}</div>
+      </div>`).join('');
+    showSheet('supplierSheet');
+  }
+
+  function selectAddSupplier(id, name) {
+    state.addFlow.supplierId = id;
+    state.addFlow.supplierName = name;
+    // 渲染人员勾选列表
+    const personnel = MOCK_PERSONNEL[id] || [];
+    const addedUids = state.workers.map(w => w.uid);
+    const titleEl = document.getElementById('personnelSheetTitle');
+    titleEl.innerHTML = `${name} <span class="sheet-step-hint">3 / 3</span>`;
+    document.getElementById('personnelList').innerHTML = personnel.map(p => {
+      const uid = `${id}_${p.id}`;
+      const added = addedUids.includes(uid);
+      return `
+        <div class="personnel-check-item">
+          <input type="checkbox" id="pc_${p.id}" value="${p.id}"
+            data-uid="${uid}" data-name="${p.name}" data-phone="${p.phone}"
+            ${added ? 'checked disabled' : ''} />
+          <div class="personnel-info">
+            <div class="personnel-name">${p.name}</div>
+            <div class="personnel-phone">${p.phone}</div>
+          </div>
+          ${added ? '<span class="personnel-added-tag">已添加</span>' : ''}
+        </div>`;
+    }).join('') || '<div style="text-align:center;color:#999;padding:24px 0;">该供应商暂无人员</div>';
+    showSheet('personnelSheet');
+  }
+
+  function confirmPersonnel() {
+    const checked = document.querySelectorAll('#personnelList input[type="checkbox"]:checked:not(:disabled)');
+    if (!checked.length) { showToast('请至少选择一名人员'); return; }
+    checked.forEach(cb => {
+      addWorker({
+        uid: cb.dataset.uid,
+        name: cb.dataset.name,
+        phone: cb.dataset.phone,
+        projectId: state.addFlow.projectId,
+        projectName: state.addFlow.projectName,
+        supplierId: state.addFlow.supplierId,
+        supplierName: state.addFlow.supplierName,
+      });
+    });
+    closeAll();
+    showToast(`已添加 ${checked.length} 名施工人员`);
+  }
+
+  // ===== 施工人员 - 手动填写 =====
+  function openManualSheet() {
+    // 重置手动表单
+    document.getElementById('manualName').value = '';
+    document.getElementById('manualPhone').value = '';
+    state.manualFlow = { projectId: '', projectName: '', supplierId: '', supplierName: '' };
+    updateManualProjectBtn();
+    updateManualSupplierBtn();
+    showSheet('manualWorkerSheet');
+  }
+
+  function openManualProjectPicker() {
+    document.getElementById('manualProjectList').innerHTML = MOCK_PROJECTS.map(p => `
+      <div class="picker-item" onclick="selectManualProject('${p.id}', '${p.name}')">
+        <div class="picker-item__label">${p.name}</div>
+      </div>`).join('');
+    showSheet('manualProjectSheet');
+  }
+
+  function selectManualProject(id, name) {
+    state.manualFlow.projectId = id;
+    state.manualFlow.projectName = name;
+    state.manualFlow.supplierId = '';
+    state.manualFlow.supplierName = '';
+    updateManualProjectBtn();
+    updateManualSupplierBtn();
+    showSheet('manualWorkerSheet');
+  }
+
+  function openManualSupplierPicker() {
+    const suppliers = MOCK_SUPPLIERS[state.manualFlow.projectId] || [];
+    document.getElementById('manualSupplierList').innerHTML = suppliers.map(s => `
+      <div class="picker-item" onclick="selectManualSupplier('${s.id}', '${s.name}')">
+        <div class="picker-item__label">${s.name}</div>
+      </div>`).join('');
+    showSheet('manualSupplierSheet');
+  }
+
+  function selectManualSupplier(id, name) {
+    state.manualFlow.supplierId = id;
+    state.manualFlow.supplierName = name;
+    updateManualSupplierBtn();
+    showSheet('manualWorkerSheet');
+  }
+
+  function updateManualProjectBtn() {
+    const btn = document.getElementById('manualSupplierBtn');
+    const label = document.getElementById('manualProjectLabel');
+    if (state.manualFlow.projectId) {
+      label.textContent = state.manualFlow.projectName;
+      label.classList.remove('placeholder');
+      btn.disabled = false;
+    } else {
+      label.textContent = '请选择项目（选填）';
+      label.classList.add('placeholder');
+      btn.disabled = true;
+    }
+  }
+
+  function updateManualSupplierBtn() {
+    const label = document.getElementById('manualSupplierLabel');
+    if (!state.manualFlow.projectId) {
+      label.textContent = '请先选择项目';
+      label.classList.add('placeholder');
+    } else if (state.manualFlow.supplierId) {
+      label.textContent = state.manualFlow.supplierName;
+      label.classList.remove('placeholder');
+    } else {
+      label.textContent = '请选择供应商（选填）';
+      label.classList.add('placeholder');
+    }
+  }
+
+  function confirmManualWorker() {
+    const name = document.getElementById('manualName').value.trim();
+    const phone = document.getElementById('manualPhone').value.trim();
+    if (!name) { showToast('请输入姓名'); return; }
+    if (!phone) { showToast('请输入手机号'); return; }
+    if (!/^1[3-9]\d{9}$/.test(phone)) { showToast('请输入正确的手机号码'); return; }
+    if (!state.manualFlow.projectId) { showToast('请选择所属项目'); return; }
+    if (!state.manualFlow.supplierId) { showToast('请选择所属供应商'); return; }
+    addWorker({
+      uid: '',
+      name, phone,
+      projectId: state.manualFlow.projectId,
+      projectName: state.manualFlow.projectName,
+      supplierId: state.manualFlow.supplierId,
+      supplierName: state.manualFlow.supplierName,
+    });
+    closeAll();
+    showToast('已添加施工人员');
+  }
+
+  // ===== 施工人员 - 数据与渲染 =====
+  function addWorker(data) {
+    state.workerIdCounter++;
+    const isPrimary = state.workers.length === 0;
+    state.workers.push({ ...data, rowId: state.workerIdCounter, isPrimary });
+    renderWorkers();
+    document.getElementById('worker-error').style.display = 'none';
+  }
+
+  function deleteWorker(rowId) {
+    const idx = state.workers.findIndex(w => w.rowId === rowId);
+    if (idx === -1) return;
+    const wasPrimary = state.workers[idx].isPrimary;
+    state.workers.splice(idx, 1);
+    if (wasPrimary && state.workers.length > 0) state.workers[0].isPrimary = true;
+    renderWorkers();
+  }
+
+  function setPrimaryWorker(rowId) {
+    state.workers.forEach(w => w.isPrimary = (w.rowId === rowId));
+    renderWorkers();
+    showToast('已设为主访客');
+  }
+
+  function renderWorkers() {
+    const list = document.getElementById('workerList');
+    const empty = document.getElementById('workerEmpty');
+    if (!state.workers.length) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    list.innerHTML = state.workers.map(w => `
+      <div class="worker-card ${w.isPrimary ? 'is-primary' : ''}">
+        <div class="worker-card__top">
+          <div>
+            <span class="worker-card__name">${w.name}</span>
+            <span class="worker-card__phone">${w.phone}</span>
+          </div>
+          ${w.isPrimary ? '<span class="worker-card__primary-badge">主访客</span>' : ''}
+        </div>
+        <div class="worker-card__tags">
+          ${w.projectName ? `<span class="worker-tag project">📁 ${w.projectName}</span>` : ''}
+          ${w.supplierName ? `<span class="worker-tag supplier">🏢 ${w.supplierName}</span>` : ''}
+          ${!w.projectName && !w.supplierName ? '<span class="worker-tag">手动添加</span>' : ''}
+        </div>
+        <div class="worker-card__actions">
+          ${!w.isPrimary ? `<button class="worker-card__set-primary" onclick="setPrimaryWorker(${w.rowId})">设为主访客</button>` : '<div style="flex:1;"></div>'}
+          <button class="worker-card__delete" onclick="deleteWorker(${w.rowId})">删除</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // ===== 须知 =====
+  function toggleNotice() {
+    state.noticeExpanded = !state.noticeExpanded;
+    document.getElementById('noticeContent').style.display = state.noticeExpanded ? 'block' : 'none';
+    document.getElementById('noticeToggleIcon').classList.toggle('expanded', state.noticeExpanded);
+  }
+
+  // ===== 验证 =====
+  function clearFieldError(fieldId) {
+    document.getElementById(fieldId)?.classList.remove('error');
+  }
+
+  function validateForm() {
+    let valid = true;
+    if (!document.getElementById('visitorName').value.trim() && !state.isConstruction) {
+      document.getElementById('field-name').classList.add('error'); valid = false;
+    } else { document.getElementById('field-name').classList.remove('error'); }
+
+    if (!state.isConstruction) {
+      const phone = document.getElementById('visitorPhone').value.trim();
+      if (!phone) {
+        document.getElementById('field-phone').classList.add('error');
+        document.getElementById('phone-error').textContent = '请输入主访客电话'; valid = false;
+      } else if (!/^1[3-9]\d{9}$/.test(phone)) {
+        document.getElementById('field-phone').classList.add('error');
+        document.getElementById('phone-error').textContent = '请输入正确的手机号码'; valid = false;
+      } else { document.getElementById('field-phone').classList.remove('error'); }
+    }
+
+    if (!state.selectedAreas.length) { document.getElementById('field-area').classList.add('error'); valid = false; }
+    else { document.getElementById('field-area').classList.remove('error'); }
+
+    if (!state.selectedReason) { document.getElementById('field-reason').classList.add('error'); valid = false; }
+    else { document.getElementById('field-reason').classList.remove('error'); }
+
+    if (!state.selectedType) { document.getElementById('field-type').classList.add('error'); valid = false; }
+    else { document.getElementById('field-type').classList.remove('error'); }
+
+    if (!state.visitTimeRange) { document.getElementById('field-time').classList.add('error'); valid = false; }
+    else { document.getElementById('field-time').classList.remove('error'); }
+
+    if (state.isConstruction && state.workers.length === 0) {
+      document.getElementById('worker-error').style.display = 'block'; valid = false;
+    }
+    return valid;
+  }
+
+  // ===== 提交 =====
+  function handleSubmit() {
+    if (!validateForm()) { showToast('请填写必填信息'); return; }
+    const loading = document.getElementById('loadingOverlay');
+    const btn = document.getElementById('submitBtn');
+    loading.style.display = 'flex';
+    btn.disabled = true; btn.textContent = '提交审核中...';
+    setTimeout(() => {
+      loading.style.display = 'none';
+      btn.disabled = false; btn.textContent = '提交审核';
+      showToast('访客申请已提交，正在进入审批流程', 3000);
+    }, 1500);
+  }
+
+  function handleCancel() {
+    if (confirm('确认取消申请？')) showToast('已取消');
+  }
+
+  document.getElementById('visitorName').addEventListener('input', () => clearFieldError('field-name'));
+  document.getElementById('visitorPhone').addEventListener('input', () => clearFieldError('field-phone'));
+</script>
+</body>
+</html>

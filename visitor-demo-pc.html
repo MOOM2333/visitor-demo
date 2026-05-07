@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>访客邀约 - 创建访客申请</title>
+  <style>
+    /* ===== Reset ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    button { cursor: pointer; font-family: inherit; }
+    input, select, textarea { font-family: inherit; }
+    h1,h2,h3,h4,h5,h6,p { margin: 0; }
+    ul, ol { margin: 0; padding: 0; list-style: none; }
+
+    /* ===== Layout ===== */
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f0f2f5;
+    }
+
+    /* ===== Page Header ===== */
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .page-header__left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #666;
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { color: #00665f; border-color: #00665f; }
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #222;
+    }
+    .page-header__right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-primary {
+      background: #00665f;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #00554e; }
+    .btn-primary:disabled { background: #99c4c1; cursor: not-allowed; }
+    .btn-default {
+      background: #fff;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .btn-default:hover { color: #00665f; border-color: #00665f; }
+
+    /* ===== Main Content ===== */
+    .main-content {
+      max-width: 1200px;
+      margin: 24px auto;
+      width: 100%;
+      padding: 0 24px;
+    }
+
+    /* ===== Card ===== */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #222;
+    }
+    .card-body {
+      padding: 24px;
+    }
+
+    /* ===== Split Layout ===== */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .section-panel {
+      padding: 20px;
+      background: #fafbfc;
+      border-radius: 8px;
+    }
+    .section-panel h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .required-star { color: #e53935; }
+
+    /* ===== Search Input ===== */
+    .search-wrapper {
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .search-wrapper input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 0 12px 0 34px;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrapper input:focus { border-color: #00665f; }
+    .search-wrapper input::placeholder { color: #bbb; }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    /* ===== Area Tree ===== */
+    .area-tree {
+      height: 280px;
+      overflow-y: auto;
+      border: 1px solid #e8e8e8;
+      border-radius: 6px;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .tree-node:last-child { border-bottom: none; }
+    .tree-node:hover { background: #f5faf9; }
+    .tree-node.parent { font-weight: 500; background: #f8f9fa; color: #555; }
+    .tree-node.parent:hover { background: #f0f5f5; }
+    .tree-node.child { padding-left: 32px; font-size: 13px; }
+    .tree-node input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #00665f;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .tree-node label {
+      cursor: pointer;
+      flex: 1;
+      color: #333;
+    }
+    .secret-badge {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      color: #e53935;
+      background: #fdecea;
+      flex-shrink: 0;
+    }
+    .tree-group-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid #f0f0f0;
+      background: #f8f9fa;
+    }
+    .tree-group-toggle:hover { background: #f0f5f5; }
+    .tree-group-toggle .toggle-arrow {
+      font-size: 10px;
+      color: #888;
+      transition: transform 0.2s;
+    }
+    .tree-group-toggle .toggle-arrow.open { transform: rotate(90deg); }
+    .tree-group-toggle .group-name { font-weight: 600; font-size: 13px; color: #444; }
+    .tree-group-children { }
+
+    /* Selected areas display */
+    .selected-areas {
+      padding: 10px 12px;
+      border: 1px solid #b3d8e0;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #00665f;
+      background: #e8f5f3;
+      min-height: 36px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .selected-areas .placeholder { color: #bbb; }
+    .area-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #00665f1a;
+      border: 1px solid #00665f33;
+      color: #00665f;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+    .area-tag .remove {
+      cursor: pointer;
+      font-size: 13px;
+      line-height: 1;
+      opacity: 0.6;
+    }
+    .area-tag .remove:hover { opacity: 1; }
+
+    /* ===== Form ===== */
+    .el-form { }
+    .form-item {
+      margin-bottom: 20px;
+    }
+    .form-item:last-child { margin-bottom: 0; }
+    .form-item__label {
+      display: flex;
+      align-items: center;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 7px;
+      font-weight: 500;
+    }
+    .form-item__label .req { color: #e53935; margin-right: 2px; }
+    .form-item__content { }
+    .form-item .error-msg {
+      font-size: 12px;
+      color: #e53935;
+      margin-top: 4px;
+      display: none;
+    }
+    .form-item.has-error .error-msg { display: block; }
+    .form-item.has-error .el-input,
+    .form-item.has-error .el-select,
+    .form-item.has-error .el-textarea { border-color: #e53935 !important; }
+
+    /* Input */
+    .el-input {
+      width: 100%;
+      height: 36px;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+    .el-input:focus { border-color: #00665f; box-shadow: 0 0 0 2px rgba(0,102,95,0.12); }
+    .el-input::placeholder { color: #c0c4cc; }
+    .el-input:hover:not(:focus) { border-color: #c0c4cc; }
+
+    .el-textarea {
+      width: 100%;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      resize: vertical;
+      min-height: 72px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fff;
+    }
+    .el-textarea:focus { border-color: #00665f; box-shadow: 0 0 0 2px rgba(0,102,95,0.12); }
+    .el-textarea::placeholder { color: #c0c4cc; }
+
+    /* Select */
+    .el-select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23c0c4cc' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .el-select:focus { border-color: #00665f; box-shadow: 0 0 0 2px rgba(0,102,95,0.12); }
+    .el-select:hover:not(:focus) { border-color: #c0c4cc; }
+
+    /* Date range input */
+    .date-range {
+      display: grid;
+      grid-template-columns: 1fr 28px 1fr;
+      align-items: center;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+    .date-range:focus-within { border-color: #00665f; box-shadow: 0 0 0 2px rgba(0,102,95,0.12); }
+    .date-range input[type="datetime-local"] {
+      border: none;
+      height: 36px;
+      padding: 0 8px;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+      width: 100%;
+      background: transparent;
+    }
+    .date-range__sep {
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      user-select: none;
+    }
+
+    /* Number input */
+    .el-number {
+      display: flex;
+      align-items: center;
+      border: 1px solid #dcdfe6;
+      border-radius: 6px;
+      overflow: hidden;
+      width: 140px;
+      background: #fff;
+    }
+    .el-number:focus-within { border-color: #00665f; }
+    .el-number__btn {
+      width: 36px;
+      height: 36px;
+      background: #f5f7fa;
+      border: none;
+      font-size: 18px;
+      color: #606266;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .el-number__btn:hover { background: #e9ecef; color: #00665f; }
+    .el-number__btn:active { background: #dce3e3; }
+    .el-number__input {
+      flex: 1;
+      border: none;
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      height: 36px;
+      background: transparent;
+    }
+
+    /* ===== Companions Table ===== */
+    .companion-section { margin-bottom: 20px; }
+    .companion-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .companion-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .companion-title { font-size: 15px; font-weight: 600; color: #222; }
+    .toggle-icon {
+      font-size: 11px;
+      color: #888;
+      transition: transform 0.3s;
+      display: inline-block;
+    }
+    .toggle-icon.expanded { transform: rotate(180deg); }
+    .companion-message {
+      font-size: 12px;
+      color: #909399;
+      margin-top: 4px;
+    }
+    .companion-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 13px;
+      border-radius: 5px;
+    }
+    .btn-outline {
+      background: #fff;
+      color: #00665f;
+      border: 1px solid #00665f;
+      border-radius: 5px;
+      padding: 5px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-outline:hover { background: #f0f9f8; }
+    .btn-danger-outline {
+      background: #fff;
+      color: #e53935;
+      border: 1px solid #e53935;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger-outline:hover { background: #fdecea; }
+
+    /* Table */
+    .el-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .el-table thead tr {
+      background: #f8f9fa;
+    }
+    .el-table th, .el-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f0f0f0;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .el-table th {
+      font-weight: 600;
+      color: #555;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .el-table td { color: #333; }
+    .el-table tbody tr:hover td { background: #f5faf9; }
+    .el-table td input {
+      width: 100%;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 13px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .el-table td input:focus { border-color: #00665f; }
+    .el-table td input::placeholder { color: #c0c4cc; }
+    .companion-empty {
+      text-align: center;
+      padding: 36px;
+      color: #909399;
+      font-size: 14px;
+    }
+    .companion-tips {
+      font-size: 12px;
+      color: rgba(20,21,21,0.5);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    /* ===== Notice ===== */
+    .notice-section { }
+    .notice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .notice-header h3 { font-size: 15px; font-weight: 600; color: #222; }
+    .notice-content { margin-top: 14px; }
+    .notice-text {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: rgba(20,21,21,0.55);
+      line-height: 1.6;
+    }
+    .notice-text:last-child { margin-bottom: 0; }
+    .notice-text .circle {
+      flex-shrink: 0;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(20,21,21,0.45);
+      margin-top: 8px;
+    }
+    .notice-text .con { flex: 1; }
+
+    /* ===== Toast / Message ===== */
+    .message-bar {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .message {
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+      animation: slideDown 0.2s ease;
+      pointer-events: all;
+      white-space: nowrap;
+    }
+    .message.success { background: #f0faf8; color: #00665f; border: 1px solid #b3ddd9; }
+    .message.error { background: #fdecea; color: #e53935; border: 1px solid #f9c0be; }
+    .message.warning { background: #fff9e6; color: #e6a817; border: 1px solid #ffe58f; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .loading-box {
+      background: #fff;
+      padding: 28px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+    }
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #e0e0e0;
+      border-top-color: #00665f;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 施工改造专属样式 ===== */
+    .cascade-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .primary-radio-cell {
+      text-align: center;
+    }
+    .primary-radio {
+      width: 17px;
+      height: 17px;
+      accent-color: #00665f;
+      cursor: pointer;
+    }
+    /* 人员选择弹窗 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 10px;
+      width: 480px;
+      max-width: 95vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 16px; font-weight: 600; color: #222; }
+    .modal-close {
+      font-size: 20px;
+      color: #aaa;
+      background: none;
+      border: none;
+      line-height: 1;
+      padding: 0;
+      cursor: pointer;
+    }
+    .modal-close:hover { color: #555; }
+    .modal-body {
+      padding: 16px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .modal-person-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .modal-person-item:last-child { border-bottom: none; }
+    .modal-person-item input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: #00665f; cursor: pointer;
+    }
+    .modal-person-item input:disabled { opacity: 0.4; cursor: not-allowed; }
+    .modal-person-info { flex: 1; }
+    .modal-person-name { font-size: 14px; font-weight: 500; color: #333; }
+    .modal-person-phone { font-size: 12px; color: #999; margin-top: 2px; }
+    .modal-person-added { font-size: 12px; color: #00665f; margin-left: auto; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #b0b0b0; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- 顶部导航 -->
+  <header class="page-header">
+    <div class="page-header__left">
+      <button class="back-btn" onclick="handleBack()">
+        ← 返回
+      </button>
+      <h1 class="page-title">创建访客申请</h1>
+    </div>
+    <div class="page-header__right">
+      <button class="btn-default" onclick="handleBack()">取消</button>
+      <button class="btn-primary" id="submitBtn" onclick="handleSubmit()">提交审核</button>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="main-content">
+
+    <!-- 区域选择 + 基本信息 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="split-layout">
+
+          <!-- 左：工区树形选择 -->
+          <div class="section-panel">
+            <h4>到访工区 <span class="required-star">*</span></h4>
+            <div class="search-wrapper">
+              <span class="search-icon">⌕</span>
+              <input type="text" id="areaSearch" placeholder="搜索区域名称..." oninput="filterTree(this.value)" />
+            </div>
+            <div class="area-tree" id="areaTree">
+              <!-- 理想汽车总部 -->
+              <div class="tree-group-toggle" onclick="toggleGroup('group-hq')">
+                <span class="toggle-arrow open" id="arrow-group-hq">▶</span>
+                <span class="group-name">理想汽车总部</span>
+              </div>
+              <div id="group-hq">
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-hq-main" value="hq-main" onchange="onAreaChange(this, '主楼', '理想汽车总部')" />
+                  <label for="a-hq-main">主楼</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-hq-innov" value="hq-innov" onchange="onAreaChange(this, '创新中心', '理想汽车总部')" />
+                  <label for="a-hq-innov">创新中心</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-hq-dc" value="hq-dc" onchange="onAreaChange(this, '数据中心', '理想汽车总部')" />
+                  <label for="a-hq-dc">数据中心</label>
+                  <span class="secret-badge">保密</span>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-hq-conf" value="hq-conf" onchange="onAreaChange(this, '会议中心', '理想汽车总部')" />
+                  <label for="a-hq-conf">会议中心</label>
+                </div>
+              </div>
+              <!-- 研发基地 -->
+              <div class="tree-group-toggle" onclick="toggleGroup('group-rd')">
+                <span class="toggle-arrow open" id="arrow-group-rd">▶</span>
+                <span class="group-name">研发基地</span>
+              </div>
+              <div id="group-rd">
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-rd-a" value="rd-a" onchange="onAreaChange(this, '研发基地A区', '研发基地')" />
+                  <label for="a-rd-a">研发基地A区</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-rd-b" value="rd-b" onchange="onAreaChange(this, '研发基地B区', '研发基地')" />
+                  <label for="a-rd-b">研发基地B区</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-rd-c" value="rd-c" onchange="onAreaChange(this, '研发基地C区', '研发基地')" />
+                  <label for="a-rd-c">研发基地C区</label>
+                  <span class="secret-badge">保密</span>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-rd-lab" value="rd-lab" onchange="onAreaChange(this, '智能驾驶实验室', '研发基地')" />
+                  <label for="a-rd-lab">智能驾驶实验室</label>
+                  <span class="secret-badge">保密</span>
+                </div>
+              </div>
+              <!-- 生产工厂 -->
+              <div class="tree-group-toggle" onclick="toggleGroup('group-factory')">
+                <span class="toggle-arrow open" id="arrow-group-factory">▶</span>
+                <span class="group-name">生产工厂</span>
+              </div>
+              <div id="group-factory">
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-fac-cz" value="fac-cz" onchange="onAreaChange(this, '常州工厂', '生产工厂')" />
+                  <label for="a-fac-cz">常州工厂</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-fac-sy" value="fac-sy" onchange="onAreaChange(this, '顺义工厂', '生产工厂')" />
+                  <label for="a-fac-sy">顺义工厂</label>
+                </div>
+                <div class="tree-node child">
+                  <input type="checkbox" id="a-fac-mfg" value="fac-mfg" onchange="onAreaChange(this, '制造中心', '生产工厂')" />
+                  <label for="a-fac-mfg">制造中心</label>
+                </div>
+              </div>
+            </div>
+            <!-- 已选展示 -->
+            <div class="selected-areas" id="selectedAreasDisplay">
+              <span class="placeholder">暂未选择工区</span>
+            </div>
+            <div id="area-error" style="font-size:12px;color:#e53935;margin-top:5px;display:none;">请选择访问区域</div>
+          </div>
+
+          <!-- 右：访客基本信息表单 -->
+          <div class="section-panel">
+            <h4>来访基本信息</h4>
+
+            <div class="form-item" id="fi-visitorType">
+              <div class="form-item__label"><span class="req">*</span>访客主体</div>
+              <div class="form-item__content">
+                <select class="el-select" id="visitorType" onchange="clearError('fi-visitorType')">
+                  <option value="">请选择访客主体</option>
+                  <option value="supplier">供应商</option>
+                  <option value="partner">合作伙伴</option>
+                  <option value="gov">政府机关人员</option>
+                  <option value="media">媒体记者</option>
+                  <option value="candidate">求职者</option>
+                  <option value="customer">顾客/用户</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+              <div class="error-msg">请选择来访主体</div>
+            </div>
+
+            <div class="form-item" id="fi-visitPurpose">
+              <div class="form-item__label"><span class="req">*</span>到访事由</div>
+              <div class="form-item__content">
+                <select class="el-select" id="visitPurpose" onchange="onPurposeChange()">
+                  <option value="">请选择到访事由</option>
+                  <option value="biz">商务合作</option>
+                  <option value="tech">技术交流</option>
+                  <option value="gov">政府来访</option>
+                  <option value="interview">面试</option>
+                  <option value="audit">审计检查</option>
+                  <option value="visit">参观调研</option>
+                  <option value="repair">施工改造</option>
+                  <option value="other">其他</option>
+                </select>
+              </div>
+              <div class="error-msg">请选择访问事由</div>
+            </div>
+
+            <div class="form-item" id="fi-visitTime">
+              <div class="form-item__label"><span class="req">*</span>预计访问时间</div>
+              <div class="form-item__content">
+                <div class="date-range">
+                  <input type="datetime-local" id="startTime" onchange="clearError('fi-visitTime')" />
+                  <div class="date-range__sep">至</div>
+                  <input type="datetime-local" id="endTime" onchange="clearError('fi-visitTime')" />
+                </div>
+              </div>
+              <div class="error-msg" id="time-error-msg">请选择访问时间</div>
+            </div>
+
+            <div class="form-item" id="fi-visitorCount">
+              <div class="form-item__label"><span class="req">*</span>访客数量</div>
+              <div class="form-item__content">
+                <div class="el-number">
+                  <button type="button" class="el-number__btn" onclick="changeCount(-1)">−</button>
+                  <input type="number" class="el-number__input" id="visitorCount" value="1" min="1" max="200" readonly />
+                  <button type="button" class="el-number__btn" onclick="changeCount(1)">+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-item" id="fi-visitorName">
+              <div class="form-item__label"><span class="req">*</span>主访客姓名</div>
+              <div class="form-item__content">
+                <input class="el-input" type="text" id="visitorName" placeholder="请输入主访客姓名" maxlength="20"
+                  oninput="clearError('fi-visitorName')" />
+              </div>
+              <div class="error-msg">请输入主访客姓名</div>
+            </div>
+
+            <div class="form-item" id="fi-visitorPhone">
+              <div class="form-item__label"><span class="req">*</span>主访客电话</div>
+              <div class="form-item__content">
+                <input class="el-input" type="tel" id="visitorPhone" placeholder="请输入主访客联系电话" maxlength="11"
+                  oninput="clearError('fi-visitorPhone')" />
+              </div>
+              <div class="error-msg" id="phone-err-msg">请输入主访客电话</div>
+            </div>
+
+            <div class="form-item">
+              <div class="form-item__label">访客接待说明</div>
+              <div class="form-item__content">
+                <textarea class="el-textarea" id="basicRemark" placeholder="请提供访客单位名称、来访具体原因等信息..." maxlength="200"></textarea>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 施工人员（仅施工改造模式显示） -->
+    <div class="card" id="constructionCard" style="display:none;">
+      <div class="card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="companion-title">施工人员</span>
+            <span style="font-size:12px;color:#e53935;">* 至少添加一名，并标记主访客</span>
+          </div>
+          <p class="companion-message">请选择项目和供应商后，从人员库中选择或手动添加施工人员。</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="cascade-row">
+            <select class="el-select" id="constructionProject" style="width:180px;" onchange="onProjectChange()">
+              <option value="">选择项目</option>
+            </select>
+            <select class="el-select" id="constructionSupplier" style="width:180px;" onchange="onSupplierChange()" disabled>
+              <option value="">选择供应商</option>
+            </select>
+            <button class="btn-outline btn-sm" id="addFromLibBtn" onclick="openPersonnelModal()" disabled>＋ 从人员库添加</button>
+          </div>
+        </div>
+      </div>
+      <div id="constructionContent">
+        <div id="constructionTableWrapper" style="display:none;">
+          <table class="el-table">
+            <thead>
+              <tr>
+                <th style="width:44px;">#</th>
+                <th style="width:72px;">主访客</th>
+                <th>姓名 <span style="color:#e53935;">*</span></th>
+                <th>手机号</th>
+                <th>所属项目</th>
+                <th>所属供应商</th>
+                <th style="width:80px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="constructionTbody"></tbody>
+          </table>
+        </div>
+        <div class="companion-empty" id="constructionEmpty">
+          请先选择项目和供应商，再添加施工人员
+        </div>
+        <div id="construction-list-error" style="font-size:12px;color:#e53935;padding:0 24px 12px;display:none;">请至少添加一名施工人员</div>
+        <div style="padding:12px 24px 16px;border-top:1px solid #f5f5f5;">
+          <button class="btn-outline btn-sm" onclick="addManualConstructionRow()">＋ 手动添加施工人员</button>
+          <span style="font-size:12px;color:#bbb;margin-left:10px;">也可先选项目/供应商后从人员库批量导入</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 随行人员（普通模式） -->
+    <div class="card companion-section" id="companionCard" style="display:none;">
+      <div class="card-header">
+        <div>
+          <div class="companion-card-header">
+            <div class="companion-header-left" onclick="toggleCompanions()">
+              <span class="companion-title">随行人员</span>
+              <span class="toggle-icon expanded" id="companionToggleIcon">▼</span>
+            </div>
+          </div>
+          <p class="companion-message">邀请多名访客时，您可在此处自行添加访客信息，也可由访客人员通过短信链接自行添加。</p>
+        </div>
+        <div class="companion-actions" id="companionActions">
+          <button class="btn-outline btn-sm" onclick="addCompanion()">＋ 添加随行人员</button>
+          <label class="btn-outline btn-sm" style="cursor:pointer;">
+            📥 导入Excel
+            <input type="file" accept=".xlsx,.xls" style="display:none;" onchange="handleImport(this)" />
+          </label>
+        </div>
+      </div>
+      <div id="companionContent">
+        <div class="companion-table" id="companionTableWrapper" style="display:none;">
+          <table class="el-table">
+            <thead>
+              <tr>
+                <th style="width:44px;">#</th>
+                <th>姓名 <span style="color:#e53935;">*</span></th>
+                <th>手机号</th>
+                <th>身份证号</th>
+                <th>所在公司</th>
+                <th style="width:80px;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="companionTbody"></tbody>
+          </table>
+        </div>
+        <div class="companion-empty" id="companionEmpty">暂无随行人员</div>
+      </div>
+    </div>
+
+    <!-- 访客预约须知 -->
+    <div class="card">
+      <div class="card-body">
+        <div class="notice-section">
+          <div class="notice-header" onclick="toggleNotice()">
+            <h3>访客预约须知</h3>
+            <span class="toggle-icon expanded" id="noticeToggleIcon">▼</span>
+          </div>
+          <div class="notice-content" id="noticeContent">
+            <div class="notice-text">
+              <div class="circle"></div>
+              <div class="con">受访员工务必要求访客遵守公司保密制度，未经允许严禁拍照。</div>
+            </div>
+            <div class="notice-text">
+              <div class="circle"></div>
+              <div class="con">访客现场签到后由受访员工接入工区，受访员工须全程陪同。</div>
+            </div>
+            <div class="notice-text">
+              <div class="circle"></div>
+              <div class="con">访客如需领取瓶装水，请到前台或门岗出示访客贴。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 人员选择弹窗 -->
+<div class="modal-overlay" id="personnelModal" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">选择施工人员</h3>
+      <button class="modal-close" onclick="closePersonnelModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-default" onclick="closePersonnelModal()">取消</button>
+      <button class="btn-primary" onclick="confirmPersonnel()">确定添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+  <div class="loading-box">
+    <div class="loading-spinner"></div>
+    正在提交，请稍候...
+  </div>
+</div>
+
+<!-- Message bar -->
+<div class="message-bar" id="messageBar"></div>
+
+<script>
+  // ===== Mock 数据 =====
+  const MOCK_PROJECTS = [
+    { id: 'p1', name: 'XX大厦改造项目' },
+    { id: 'p2', name: '研发楼装修项目' },
+    { id: 'p3', name: '厂房扩建项目' },
+  ];
+  const MOCK_SUPPLIERS = {
+    p1: [{ id: 's1', name: '北京建工集团' }, { id: 's2', name: '华建装饰公司' }],
+    p2: [{ id: 's3', name: '绿城建设' }, { id: 's1', name: '北京建工集团' }],
+    p3: [{ id: 's4', name: '中建八局' }, { id: 's5', name: '顺义建材有限公司' }],
+  };
+  const MOCK_PERSONNEL = {
+    s1: [{ id: 'u1', name: '张三', phone: '13800001111' }, { id: 'u2', name: '王五', phone: '13800003333' }],
+    s2: [{ id: 'u3', name: '李四', phone: '13900002222' }, { id: 'u4', name: '陈八', phone: '13900004444' }],
+    s3: [{ id: 'u5', name: '赵六', phone: '15600004444' }, { id: 'u6', name: '孙七', phone: '15700005555' }],
+    s4: [{ id: 'u7', name: '周八', phone: '18800006666' }],
+    s5: [{ id: 'u8', name: '吴九', phone: '18900007777' }, { id: 'u9', name: '郑十', phone: '17700008888' }],
+  };
+
+  // ===== State =====
+  const state = {
+    selectedAreas: [],
+    visitorCount: 1,
+    companionCount: 0,
+    constructionRows: [],   // [{uid, name, phone, supplierName, projectName, isPrimary}]
+    constructionRowId: 0,
+    noticeOpen: true,
+    companionsOpen: true,
+    isConstruction: false,
+  };
+
+  // ===== Init =====
+  (function() {
+    // 默认时间
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const end = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    document.getElementById('startTime').value = fmt(now);
+    document.getElementById('endTime').value = fmt(end);
+    document.getElementById('startTime').min = fmt(now).slice(0,10) + 'T00:00';
+    document.getElementById('endTime').min = fmt(now).slice(0,10) + 'T00:00';
+    // 初始化项目下拉
+    const projectSel = document.getElementById('constructionProject');
+    MOCK_PROJECTS.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name;
+      projectSel.appendChild(opt);
+    });
+  })();
+
+  // ===== 到访事由切换 =====
+  function onPurposeChange() {
+    clearError('fi-visitPurpose');
+    const val = document.getElementById('visitPurpose').value;
+    state.isConstruction = (val === 'repair');
+    // 普通字段显隐
+    ['fi-visitorCount', 'fi-visitorName', 'fi-visitorPhone'].forEach(id => {
+      document.getElementById(id).style.display = state.isConstruction ? 'none' : '';
+    });
+    // 卡片显隐
+    document.getElementById('constructionCard').style.display = state.isConstruction ? 'block' : 'none';
+    if (!state.isConstruction) {
+      document.getElementById('companionCard').style.display = state.visitorCount > 1 ? 'block' : 'none';
+    } else {
+      document.getElementById('companionCard').style.display = 'none';
+    }
+    // 清除施工模式错误提示
+    document.getElementById('construction-list-error').style.display = 'none';
+  }
+
+  // ===== 工区树形 =====
+  function toggleGroup(groupId) {
+    const el = document.getElementById(groupId);
+    const arrow = document.getElementById('arrow-' + groupId);
+    const isHidden = el.style.display === 'none';
+    el.style.display = isHidden ? 'block' : 'none';
+    arrow.classList.toggle('open', isHidden);
+  }
+
+  function onAreaChange(cb, label, parent) {
+    if (cb.checked) {
+      if (!state.selectedAreas.find(a => a.id === cb.value)) {
+        state.selectedAreas.push({ id: cb.value, label, parent });
+      }
+    } else {
+      state.selectedAreas = state.selectedAreas.filter(a => a.id !== cb.value);
+    }
+    renderSelectedAreas();
+    if (state.selectedAreas.length > 0) {
+      document.getElementById('area-error').style.display = 'none';
+    }
+  }
+
+  function removeArea(id) {
+    const cb = document.querySelector(`input[value="${id}"]`);
+    if (cb) cb.checked = false;
+    state.selectedAreas = state.selectedAreas.filter(a => a.id !== id);
+    renderSelectedAreas();
+  }
+
+  function renderSelectedAreas() {
+    const el = document.getElementById('selectedAreasDisplay');
+    if (state.selectedAreas.length === 0) {
+      el.innerHTML = '<span class="placeholder">暂未选择工区</span>';
+    } else {
+      el.innerHTML = state.selectedAreas.map(a =>
+        `<span class="area-tag">${a.label}<span class="remove" onclick="removeArea('${a.id}')">×</span></span>`
+      ).join('');
+    }
+  }
+
+  function filterTree(keyword) {
+    const kw = keyword.trim().toLowerCase();
+    document.querySelectorAll('.tree-node.child').forEach(node => {
+      const label = node.querySelector('label')?.textContent?.toLowerCase() || '';
+      node.style.display = (!kw || label.includes(kw)) ? 'flex' : 'none';
+    });
+  }
+
+  // ===== 访客数量（普通模式）=====
+  function changeCount(delta) {
+    let val = parseInt(document.getElementById('visitorCount').value) + delta;
+    if (val < 1) val = 1;
+    if (val > 200) val = 200;
+    document.getElementById('visitorCount').value = val;
+    state.visitorCount = val;
+    if (!state.isConstruction) {
+      document.getElementById('companionCard').style.display = val > 1 ? 'block' : 'none';
+    }
+  }
+
+  // ===== 随行人员（普通模式）=====
+  let companionId = 0;
+  function addCompanion() {
+    const max = state.visitorCount - 1;
+    if (state.companionCount >= max) {
+      showMessage(`随行人员不能超过 ${max} 人`, 'warning');
+      return;
+    }
+    companionId++;
+    const id = companionId;
+    state.companionCount++;
+    const tbody = document.getElementById('companionTbody');
+    const tr = document.createElement('tr');
+    tr.id = `companion-row-${id}`;
+    tr.innerHTML = `
+      <td style="color:#999;">${state.companionCount}</td>
+      <td><input type="text" placeholder="请输入姓名" maxlength="20" /></td>
+      <td><input type="tel" placeholder="请输入手机号" maxlength="11" /></td>
+      <td><input type="text" placeholder="选填" maxlength="18" /></td>
+      <td><input type="text" placeholder="选填" maxlength="50" /></td>
+      <td><button class="btn-danger-outline" onclick="deleteCompanion(${id})">删除</button></td>
+    `;
+    tbody.appendChild(tr);
+    document.getElementById('companionEmpty').style.display = 'none';
+    document.getElementById('companionTableWrapper').style.display = 'block';
+  }
+
+  function deleteCompanion(id) {
+    document.getElementById(`companion-row-${id}`)?.remove();
+    state.companionCount--;
+    reindexCompanions();
+    if (state.companionCount === 0) {
+      document.getElementById('companionEmpty').style.display = 'block';
+      document.getElementById('companionTableWrapper').style.display = 'none';
+    }
+  }
+
+  function reindexCompanions() {
+    document.querySelectorAll('#companionTbody tr').forEach((tr, i) => {
+      tr.cells[0].textContent = i + 1;
+    });
+  }
+
+  function handleImport(input) {
+    if (input.files.length > 0) {
+      showMessage(`已选择文件：${input.files[0].name}（演示模式，暂不执行实际导入）`, 'warning');
+    }
+    input.value = '';
+  }
+
+  function toggleCompanions() {
+    state.companionsOpen = !state.companionsOpen;
+    document.getElementById('companionContent').style.display = state.companionsOpen ? 'block' : 'none';
+    document.getElementById('companionActions').style.display = state.companionsOpen ? 'flex' : 'none';
+    document.getElementById('companionToggleIcon').classList.toggle('expanded', state.companionsOpen);
+  }
+
+  // ===== 施工改造 — 级联选择 =====
+  function onProjectChange() {
+    const projectId = document.getElementById('constructionProject').value;
+    const supplierSel = document.getElementById('constructionSupplier');
+    // 清空供应商
+    supplierSel.innerHTML = '<option value="">选择供应商</option>';
+    supplierSel.disabled = !projectId;
+    document.getElementById('addFromLibBtn').disabled = true;
+    if (projectId && MOCK_SUPPLIERS[projectId]) {
+      MOCK_SUPPLIERS[projectId].forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        supplierSel.appendChild(opt);
+      });
+    }
+  }
+
+  function onSupplierChange() {
+    const supplierId = document.getElementById('constructionSupplier').value;
+    document.getElementById('addFromLibBtn').disabled = !supplierId;
+  }
+
+  // ===== 施工改造 — 人员选择弹窗 =====
+  function openPersonnelModal() {
+    const projectId = document.getElementById('constructionProject').value;
+    const supplierId = document.getElementById('constructionSupplier').value;
+    if (!projectId || !supplierId) {
+      showMessage('请先选择项目和供应商', 'warning');
+      return;
+    }
+    const supplierName = document.getElementById('constructionSupplier').selectedOptions[0].text;
+    const projectName = document.getElementById('constructionProject').selectedOptions[0].text;
+    const personnel = MOCK_PERSONNEL[supplierId] || [];
+    const addedIds = state.constructionRows.map(r => r.uid);
+
+    document.getElementById('modalTitle').textContent = `从「${supplierName}」选择人员`;
+    const body = document.getElementById('modalBody');
+    if (personnel.length === 0) {
+      body.innerHTML = '<div style="text-align:center;color:#999;padding:24px 0;">该供应商暂无人员记录</div>';
+    } else {
+      body.innerHTML = personnel.map(p => {
+        const alreadyAdded = addedIds.includes(`${supplierId}_${p.id}`);
+        return `
+          <div class="modal-person-item">
+            <input type="checkbox" id="mp_${p.id}"
+              value="${p.id}" ${alreadyAdded ? 'checked disabled' : ''}
+              data-name="${p.name}" data-phone="${p.phone}"
+              data-supplier="${supplierId}" data-supplier-name="${supplierName}"
+              data-project="${projectId}" data-project-name="${projectName}" />
+            <div class="modal-person-info">
+              <div class="modal-person-name">${p.name}</div>
+              <div class="modal-person-phone">${p.phone}</div>
+            </div>
+            ${alreadyAdded ? '<span class="modal-person-added">已添加</span>' : ''}
+          </div>`;
+      }).join('');
+    }
+    document.getElementById('personnelModal').style.display = 'flex';
+  }
+
+  function closePersonnelModal() {
+    document.getElementById('personnelModal').style.display = 'none';
+  }
+
+  function confirmPersonnel() {
+    const checked = document.querySelectorAll('#modalBody input[type="checkbox"]:checked:not(:disabled)');
+    if (checked.length === 0) {
+      showMessage('请至少选择一名人员', 'warning');
+      return;
+    }
+    checked.forEach(cb => {
+      addConstructionRow({
+        uid: `${cb.dataset.supplier}_${cb.value}`,
+        name: cb.dataset.name,
+        phone: cb.dataset.phone,
+        supplierName: cb.dataset.supplierName,
+        projectName: cb.dataset.projectName,
+      });
+    });
+    closePersonnelModal();
+    showMessage(`已添加 ${checked.length} 名施工人员`, 'success');
+  }
+
+  // ===== 施工改造 — 人员表格 =====
+  function addConstructionRow({ uid = '', name = '', phone = '', supplierName = '', projectName = '' } = {}) {
+    state.constructionRowId++;
+    const rowId = state.constructionRowId;
+    const isPrimary = state.constructionRows.length === 0; // 第一行默认为主访客
+    state.constructionRows.push({ rowId, uid, name, phone, supplierName, projectName, isPrimary });
+    renderConstructionTable();
+    document.getElementById('construction-list-error').style.display = 'none';
+  }
+
+  function deleteConstructionRow(rowId) {
+    const idx = state.constructionRows.findIndex(r => r.rowId === rowId);
+    if (idx === -1) return;
+    const wasPrimary = state.constructionRows[idx].isPrimary;
+    state.constructionRows.splice(idx, 1);
+    if (wasPrimary && state.constructionRows.length > 0) {
+      state.constructionRows[0].isPrimary = true;
+    }
+    renderConstructionTable();
+  }
+
+  function setPrimaryVisitor(rowId) {
+    state.constructionRows.forEach(r => r.isPrimary = (r.rowId === rowId));
+    renderConstructionTable();
+  }
+
+  function renderConstructionTable() {
+    const tbody = document.getElementById('constructionTbody');
+    const wrapper = document.getElementById('constructionTableWrapper');
+    const empty = document.getElementById('constructionEmpty');
+
+    if (state.constructionRows.length === 0) {
+      wrapper.style.display = 'none';
+      empty.style.display = 'block';
+      empty.textContent = '请先选择项目和供应商，再添加施工人员';
+      return;
+    }
+    wrapper.style.display = 'block';
+    empty.style.display = 'none';
+
+    tbody.innerHTML = state.constructionRows.map((r, i) => `
+      <tr id="cr-${r.rowId}">
+        <td style="color:#999;">${i + 1}</td>
+        <td class="primary-radio-cell">
+          <input type="radio" class="primary-radio" name="primaryVisitor"
+            ${r.isPrimary ? 'checked' : ''}
+            onchange="setPrimaryVisitor(${r.rowId})"
+            title="设为主访客" />
+        </td>
+        <td>
+          ${r.uid
+            ? `<span style="font-size:14px;color:#333;">${r.name}</span>`
+            : `<input type="text" value="${r.name}" placeholder="请输入姓名" maxlength="20"
+                onchange="updateConstructionRow(${r.rowId}, 'name', this.value)" />`}
+        </td>
+        <td>
+          ${r.uid
+            ? `<span style="font-size:13px;color:#666;">${r.phone}</span>`
+            : `<input type="tel" value="${r.phone}" placeholder="请输入手机号" maxlength="11"
+                onchange="updateConstructionRow(${r.rowId}, 'phone', this.value)" />`}
+        </td>
+        <td>
+          ${r.uid
+            ? `<span style="font-size:12px;color:#888;">${r.projectName}</span>`
+            : `<select class="el-select" style="width:100%;" onchange="updateConstructionRowProject(${r.rowId}, this)"
+                id="project-sel-${r.rowId}">
+                <option value="">选择项目</option>
+                ${getProjectOptions(r.projectId)}
+              </select>`}
+        </td>
+        <td>
+          ${r.uid
+            ? `<span class="area-tag" style="font-size:12px;">${r.supplierName}</span>`
+            : `<select class="el-select" style="width:100%;" onchange="updateConstructionRowSupplier(${r.rowId}, this)"
+                id="supplier-sel-${r.rowId}">
+                <option value="">选择供应商</option>
+                ${getSupplierOptionsForProject(r.projectId, r.supplierId)}
+              </select>`}
+        </td>
+        <td>
+          <button class="btn-danger-outline" onclick="deleteConstructionRow(${r.rowId})">删除</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function getProjectOptions(selectedId = '') {
+    return MOCK_PROJECTS.map(p =>
+      `<option value="${p.id}" ${p.id === selectedId ? 'selected' : ''}>${p.name}</option>`
+    ).join('');
+  }
+
+  function getSupplierOptionsForProject(projectId = '', selectedId = '') {
+    const list = projectId ? (MOCK_SUPPLIERS[projectId] || []) : [];
+    return list.map(s =>
+      `<option value="${s.id}" ${s.id === selectedId ? 'selected' : ''}>${s.name}</option>`
+    ).join('');
+  }
+
+  function updateConstructionRowProject(rowId, sel) {
+    const row = state.constructionRows.find(r => r.rowId === rowId);
+    if (!row) return;
+    row.projectId   = sel.value;
+    row.projectName = sel.selectedOptions[0]?.text || '';
+    // 重置供应商
+    row.supplierId   = '';
+    row.supplierName = '';
+    // 只刷新该行的供应商下拉，避免整表重渲导致焦点丢失
+    const supplierSel = document.getElementById(`supplier-sel-${rowId}`);
+    if (supplierSel) {
+      supplierSel.innerHTML = `<option value="">选择供应商</option>${getSupplierOptionsForProject(row.projectId)}`;
+    }
+  }
+
+  function updateConstructionRowSupplier(rowId, sel) {
+    const row = state.constructionRows.find(r => r.rowId === rowId);
+    if (!row) return;
+    row.supplierId   = sel.value;
+    row.supplierName = sel.selectedOptions[0]?.text || '';
+  }
+
+  function addManualConstructionRow() {
+    addConstructionRow({ uid: '', name: '', phone: '', supplierId: '', supplierName: '', projectId: '', projectName: '' });
+  }
+
+  function updateConstructionRow(rowId, field, value) {
+    const row = state.constructionRows.find(r => r.rowId === rowId);
+    if (row) row[field] = value;
+  }
+
+  // ===== 须知折叠 =====
+  function toggleNotice() {
+    state.noticeOpen = !state.noticeOpen;
+    document.getElementById('noticeContent').style.display = state.noticeOpen ? 'block' : 'none';
+    document.getElementById('noticeToggleIcon').classList.toggle('expanded', state.noticeOpen);
+  }
+
+  // ===== 表单验证 =====
+  function clearError(fieldId) {
+    document.getElementById(fieldId)?.classList.remove('has-error');
+  }
+
+  function validate() {
+    let ok = true;
+
+    // 工区
+    if (state.selectedAreas.length === 0) {
+      document.getElementById('area-error').style.display = 'block';
+      ok = false;
+    }
+
+    // 访客主体
+    if (!document.getElementById('visitorType').value) {
+      document.getElementById('fi-visitorType').classList.add('has-error');
+      ok = false;
+    }
+    // 到访事由
+    if (!document.getElementById('visitPurpose').value) {
+      document.getElementById('fi-visitPurpose').classList.add('has-error');
+      ok = false;
+    }
+
+    // 时间
+    const s = document.getElementById('startTime').value;
+    const e = document.getElementById('endTime').value;
+    if (!s || !e) {
+      document.getElementById('fi-visitTime').classList.add('has-error');
+      document.getElementById('time-error-msg').textContent = '请选择访问时间';
+      ok = false;
+    } else if (new Date(s) >= new Date(e)) {
+      document.getElementById('fi-visitTime').classList.add('has-error');
+      document.getElementById('time-error-msg').textContent = '访问结束时间必须大于开始时间';
+      ok = false;
+    } else if ((new Date(e) - new Date(s)) > 7 * 24 * 60 * 60 * 1000) {
+      document.getElementById('fi-visitTime').classList.add('has-error');
+      document.getElementById('time-error-msg').textContent = '访问时间不能超过7天';
+      ok = false;
+    } else {
+      clearError('fi-visitTime');
+    }
+
+    if (state.isConstruction) {
+      // 施工模式：验证施工人员
+      if (state.constructionRows.length === 0) {
+        document.getElementById('construction-list-error').textContent = '请至少添加一名施工人员';
+        document.getElementById('construction-list-error').style.display = 'block';
+        ok = false;
+      } else {
+        // 验证每行手动添加的行是否填写完整
+        const incompleteRows = state.constructionRows.filter(r => !r.uid && (
+          !r.name.trim() || !r.phone.trim() || !r.projectId || !r.supplierId
+        ));
+        if (incompleteRows.length > 0) {
+          document.getElementById('construction-list-error').textContent = '手动添加的施工人员信息不完整，请填写姓名、手机号、所属项目和所属供应商';
+          document.getElementById('construction-list-error').style.display = 'block';
+          ok = false;
+        }
+        // 验证手机号格式
+        const badPhone = state.constructionRows.find(r => !r.uid && r.phone && !/^1[3-9]\d{9}$/.test(r.phone.trim()));
+        if (badPhone) {
+          document.getElementById('construction-list-error').textContent = '请输入正确的手机号码（11位）';
+          document.getElementById('construction-list-error').style.display = 'block';
+          ok = false;
+        }
+      }
+    } else {
+      // 普通模式：验证姓名、电话
+      if (!document.getElementById('visitorName').value.trim()) {
+        document.getElementById('fi-visitorName').classList.add('has-error');
+        ok = false;
+      }
+      const phone = document.getElementById('visitorPhone').value.trim();
+      if (!phone) {
+        document.getElementById('fi-visitorPhone').classList.add('has-error');
+        document.getElementById('phone-err-msg').textContent = '请输入主访客电话';
+        ok = false;
+      } else if (!/^1[3-9]\d{9}$/.test(phone)) {
+        document.getElementById('fi-visitorPhone').classList.add('has-error');
+        document.getElementById('phone-err-msg').textContent = '请输入正确的手机号码';
+        ok = false;
+      }
+    }
+
+    return ok;
+  }
+
+  // ===== 提交 =====
+  function handleSubmit() {
+    if (!validate()) {
+      showMessage('请完善必填信息后再提交', 'warning');
+      return;
+    }
+    const loading = document.getElementById('loadingOverlay');
+    const btn = document.getElementById('submitBtn');
+    loading.style.display = 'flex';
+    btn.disabled = true;
+    btn.textContent = '提交中...';
+    setTimeout(() => {
+      loading.style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = '提交审核';
+      showMessage('访客申请已提交，正在进入审批流程', 'success');
+    }, 1500);
+  }
+
+  function handleBack() {
+    if (confirm('确认返回？未保存的内容将丢失。')) {
+      showMessage('已取消', 'warning');
+    }
+  }
+
+  // ===== 消息提示 =====
+  function showMessage(text, type = 'success', duration = 3000) {
+    const bar = document.getElementById('messageBar');
+    const el = document.createElement('div');
+    el.className = `message ${type}`;
+    el.textContent = text;
+    bar.appendChild(el);
+    setTimeout(() => {
+      el.style.opacity = '0';
+      el.style.transition = 'opacity 0.3s';
+      setTimeout(() => el.remove(), 300);
+    }, duration);
+  }
+</script>
+</body>
+</html>
